@@ -13,7 +13,7 @@ const unsigned char encodelookup[] = {
 //	0A	  0B	0C	  0D	0E	  0F	10	  11	12	  13	14	  15	16	  17	18	  19	1A	  1B	1C	  1D	1E	  1F
 };
 
-//use full matrix, don't truncate at pos 86 (safe decode) / 0xFF means unsupported character in encoded string
+//use full matrix, don't truncate at pos 86 (safe decode) / 0xFF means invalid character in encoded string
 const unsigned char decodelookup[] = {
 	0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,	//0-15
 	0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,	//16-31
@@ -151,7 +151,7 @@ size_t base32_decode(const char* encoded, size_t encoded_length, char** plain)
 	return plain_length;
 
 error:
-	delete[](*plain);
+	delete[] (*plain);
 	*plain = 0;
 	return error_index;
 }
