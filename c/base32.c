@@ -1,6 +1,6 @@
 #include "base32.h"
 
-const unsigned char encodelookup[] = {
+static const unsigned char encodelookup[] = {
 //  '0'   '1'   '2'   '3'   '4'   '5'   '6'   '7'   '8'   '9'
     0x30, 0x31, 0x32, 0x33, 0x34, 0x35, 0x36, 0x37, 0x38, 0x39,
 //  48    49    50    51    52    53    54    55    56    57
@@ -14,7 +14,7 @@ const unsigned char encodelookup[] = {
 };
 
 //use full matrix, don't truncate at pos 86 (safe decode) / 0xFF means invalid character in encoded string
-const unsigned char decodelookup[] = {
+static const unsigned char decodelookup[] = {
 	0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,	//0-15
 	0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,	//16-31
 	0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,	//32-47
@@ -39,9 +39,9 @@ size_t base32_encode(const char* plain, size_t plain_length, char** encoded)
 	size_t bitcount = plain_length * 8;
 	size_t remainder = plain_length % 5;
 	size_t encoded_length = (bitcount % 5) > 0 ? 1 + bitcount / 5 : bitcount / 5;
-	(*encoded) = new char[encoded_length];
+	(*encoded) = (char*) malloc(encoded_length);
 
-	size_t limit = plain_length - remainder - 1;
+	size_t limit = (plain_length <= remainder + 1) ? 0 : plain_length - remainder - 1;
 	size_t i = 0, j = 0;
 	for (; i < limit; i += 5, j += 8)
 	{
@@ -95,10 +95,10 @@ size_t base32_decode(const char* encoded, size_t encoded_length, char** plain)
 	size_t error_index = -1;
 	size_t bitcount = encoded_length * 5;
 	size_t plain_length = bitcount / 8;
-	(*plain) = new char[plain_length];
+	(*plain) = (char*) malloc(plain_length);
 	
 	size_t remainder = plain_length % 5;
-	size_t limit = plain_length - remainder - 1;
+	size_t limit = (plain_length <= remainder + 1) ? 0 : plain_length - remainder - 1;
 
 	size_t i = 0, j = 0;
 	for (; i < limit; i += 5, j += 8)
@@ -151,7 +151,7 @@ size_t base32_decode(const char* encoded, size_t encoded_length, char** plain)
 	return plain_length;
 
 error:
-	delete[] (*plain);
+	free (*plain);
 	*plain = 0;
 	return error_index;
 }
