@@ -1,6 +1,6 @@
 #include "base64.h"
 
-const unsigned char encodelookup[] = {
+static const unsigned char encodelookup[] = {
 //  'A'   'B'   'C'   'D'   'E'   'F'   'G'   'H'   'I'   'J'   'K'   'L'   'M'   'N'   'O'   'P'   'Q'   'R'   'S'   'T'   'U'   'V'   'W'   'X'   'Y'   'Z'
     0x41, 0x42, 0x43, 0x44, 0x45, 0x46, 0x47, 0x48, 0x49, 0x4A, 0x4B, 0x4C, 0x4D, 0x4E, 0x4F, 0x50, 0x51, 0x52, 0x53, 0x54, 0x55, 0x56, 0x57, 0x58, 0x59, 0x5A,
 //  65    66    67    68    69    70    71    72    73    74    75    76    77    78    79    80    81    82    83    84    85    86    87    88    89    90
@@ -21,7 +21,7 @@ const unsigned char encodelookup[] = {
 };
 
 //use full matrix, don't truncate (safe decode) / 0xFF means invalid character in encoded string
-const unsigned char decodelookup[] = {
+static const unsigned char decodelookup[] = {
 	0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,	//0-15
 	0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,	//16-31
 	0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0x3E, 0xFF, 0xFF, 0xFF, 0x3F,	//32-47
@@ -45,9 +45,9 @@ size_t base64_encode(const char* plain, size_t plain_length, char** encoded)
 	//3 octets (bytes) match 4 sextets (bitcount -> 3*8 == 4*6)
 	size_t bitcount = plain_length * 4;
 	size_t remainder = plain_length % 3;
-	size_t limit = plain_length - remainder - 1;
+	size_t limit = (plain_length <= remainder + 1) ? 0 : plain_length - remainder - 1;
 	const size_t encoded_length = (bitcount % 3) > 0 ? 1 + bitcount / 3 : bitcount / 3;
-	(*encoded) = new char[encoded_length + 1];
+	(*encoded) = (char*) malloc(encoded_length + 1);
 	(*encoded)[encoded_length] = 0;
 
 	size_t i = 0, j = 0;
@@ -81,11 +81,11 @@ size_t base64_decode(const char* encoded, size_t encoded_length, char** plain)
 	size_t error_index = -1;
 	const size_t bitcount = encoded_length * 3;
 	const size_t plain_length = bitcount / 4;
-	(*plain) = new char[plain_length + 1];
+	(*plain) = (char*)malloc (plain_length + 1);
 	(*plain)[plain_length] = 0;
 
 	size_t remainder = plain_length % 3;
-	size_t limit = plain_length - remainder - 1;
+	size_t limit = (plain_length <= remainder + 1) ? 0 : plain_length - remainder - 1;
 
 	size_t i = 0, j = 0;
 	for (; i < limit; i += 3, j += 4)
@@ -146,7 +146,7 @@ size_t base64_decode(const char* encoded, size_t encoded_length, char** plain)
 	return plain_length;
 
 error:
-	delete[] (*plain);
+	free (*plain);
 	*plain = 0;
 	return error_index;
 }
