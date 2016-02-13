@@ -92,6 +92,8 @@ size_t base32_encode(const char* plain, size_t plain_length, char** encoded)
 
 size_t base32_decode(const char* encoded, size_t encoded_length, char** plain)
 {
+	const unsigned char* uencoded = (const unsigned char*) encoded;
+
 	size_t error_index = -1;
 	size_t bitcount = encoded_length * 5;
 	size_t plain_length = bitcount / 8;
@@ -103,46 +105,46 @@ size_t base32_decode(const char* encoded, size_t encoded_length, char** plain)
 	size_t i = 0, j = 0;
 	for (; i < limit; i += 5, j += 8)
 	{
-		if (decodelookup[encoded[j]] == 0xFF) { error_index = j; goto error; }
-		if (decodelookup[encoded[j + 1]] == 0xFF) { error_index = j + 1; goto error; }
-		if (decodelookup[encoded[j + 2]] == 0xFF) { error_index = j + 2; goto error; }
-		if (decodelookup[encoded[j + 3]] == 0xFF) { error_index = j + 3; goto error; }
-		if (decodelookup[encoded[j + 4]] == 0xFF) { error_index = j + 4; goto error; }
-		if (decodelookup[encoded[j + 5]] == 0xFF) { error_index = j + 5; goto error; }
-		if (decodelookup[encoded[j + 6]] == 0xFF) { error_index = j + 6; goto error; }
-		if (decodelookup[encoded[j + 7]] == 0xFF) { error_index = j + 7; goto error; }
+		if (decodelookup[uencoded[j]] == 0xFF) { error_index = j; goto error; }
+		if (decodelookup[uencoded[j + 1]] == 0xFF) { error_index = j + 1; goto error; }
+		if (decodelookup[uencoded[j + 2]] == 0xFF) { error_index = j + 2; goto error; }
+		if (decodelookup[uencoded[j + 3]] == 0xFF) { error_index = j + 3; goto error; }
+		if (decodelookup[uencoded[j + 4]] == 0xFF) { error_index = j + 4; goto error; }
+		if (decodelookup[uencoded[j + 5]] == 0xFF) { error_index = j + 5; goto error; }
+		if (decodelookup[uencoded[j + 6]] == 0xFF) { error_index = j + 6; goto error; }
+		if (decodelookup[uencoded[j + 7]] == 0xFF) { error_index = j + 7; goto error; }
 
-		(*plain)[i] = (char)(((decodelookup[encoded[j]] & 0x1F) << 3) | ((decodelookup[encoded[j + 1]] & 0x1C) >> 2));
-		(*plain)[i + 1] = (char)(((decodelookup[encoded[j + 1]] & 0x03) << 6) | ((decodelookup[encoded[j + 2]] & 0x1F) << 1) | ((decodelookup[encoded[j + 3]] & 0x10) >> 4));
-		(*plain)[i + 2] = (char)(((decodelookup[encoded[j + 3]] & 0x0F) << 4) | ((decodelookup[encoded[j + 4]] & 0x1E) >> 1));
-		(*plain)[i + 3] = (char)(((decodelookup[encoded[j + 4]] & 0x01) << 7) | ((decodelookup[encoded[j + 5]] & 0x1F) << 2) | ((decodelookup[encoded[j + 6]] & 0x18) >> 3));
-		(*plain)[i + 4] = (char)(((decodelookup[encoded[j + 6]] & 0x07) << 5) | ((decodelookup[encoded[j + 7]] & 0x1F)));
+		(*plain)[i] = (char)(((decodelookup[uencoded[j]] & 0x1F) << 3) | ((decodelookup[uencoded[j + 1]] & 0x1C) >> 2));
+		(*plain)[i + 1] = (char)(((decodelookup[uencoded[j + 1]] & 0x03) << 6) | ((decodelookup[uencoded[j + 2]] & 0x1F) << 1) | ((decodelookup[uencoded[j + 3]] & 0x10) >> 4));
+		(*plain)[i + 2] = (char)(((decodelookup[uencoded[j + 3]] & 0x0F) << 4) | ((decodelookup[uencoded[j + 4]] & 0x1E) >> 1));
+		(*plain)[i + 3] = (char)(((decodelookup[uencoded[j + 4]] & 0x01) << 7) | ((decodelookup[uencoded[j + 5]] & 0x1F) << 2) | ((decodelookup[uencoded[j + 6]] & 0x18) >> 3));
+		(*plain)[i + 4] = (char)(((decodelookup[uencoded[j + 6]] & 0x07) << 5) | ((decodelookup[uencoded[j + 7]] & 0x1F)));
 	}
 
 	if (remainder-- > 0)
 	{
-		if (decodelookup[encoded[j]] == 0xFF) { error_index = j; goto error; }
-		if (decodelookup[encoded[j + 1]] == 0xFF) { error_index = j + 1; goto error; }
+		if (decodelookup[uencoded[j]] == 0xFF) { error_index = j; goto error; }
+		if (decodelookup[uencoded[j + 1]] == 0xFF) { error_index = j + 1; goto error; }
 
-		(*plain)[i] = (char)(((decodelookup[encoded[j]] & 0x1F) << 3) | ((decodelookup[encoded[j + 1]] & 0x1C) >> 2));
+		(*plain)[i] = (char)(((decodelookup[uencoded[j]] & 0x1F) << 3) | ((decodelookup[uencoded[j + 1]] & 0x1C) >> 2));
 		if (remainder-- > 0)
 		{
-			if (decodelookup[encoded[j + 2]] == 0xFF) { error_index = j + 2; goto error; }
-			if (decodelookup[encoded[j + 3]] == 0xFF) { error_index = j + 3; goto error; }
+			if (decodelookup[uencoded[j + 2]] == 0xFF) { error_index = j + 2; goto error; }
+			if (decodelookup[uencoded[j + 3]] == 0xFF) { error_index = j + 3; goto error; }
 
-			(*plain)[i + 1] = (char)(((decodelookup[encoded[j + 1]] & 0x03) << 6) | ((decodelookup[encoded[j + 2]] & 0x1F) << 1) | ((decodelookup[encoded[j + 3]] & 0x10) >> 4));
+			(*plain)[i + 1] = (char)(((decodelookup[uencoded[j + 1]] & 0x03) << 6) | ((decodelookup[uencoded[j + 2]] & 0x1F) << 1) | ((decodelookup[uencoded[j + 3]] & 0x10) >> 4));
 			if (remainder-- > 0)
 			{
-				if (decodelookup[encoded[j + 4]] == 0xFF) { error_index = j + 4; goto error; }
+				if (decodelookup[uencoded[j + 4]] == 0xFF) { error_index = j + 4; goto error; }
 
-				(*plain)[i + 2] = (char)(((decodelookup[encoded[j + 3]] & 0x0F) << 4) | ((decodelookup[encoded[j + 4]] & 0x1E) >> 1));
+				(*plain)[i + 2] = (char)(((decodelookup[uencoded[j + 3]] & 0x0F) << 4) | ((decodelookup[uencoded[j + 4]] & 0x1E) >> 1));
 				if (remainder > 0)
 				{
 
-					if (decodelookup[encoded[j + 5]] == 0xFF) { error_index = j + 5; goto error; }
-					if (decodelookup[encoded[j + 6]] == 0xFF) { error_index = j + 6; goto error; }
+					if (decodelookup[uencoded[j + 5]] == 0xFF) { error_index = j + 5; goto error; }
+					if (decodelookup[uencoded[j + 6]] == 0xFF) { error_index = j + 6; goto error; }
 
-					(*plain)[i + 3] = (char)(((decodelookup[encoded[j + 4]] & 0x01) << 7) | ((decodelookup[encoded[j + 5]] & 0x1F) << 2) | ((decodelookup[encoded[j + 6]] & 0x18) >> 3));
+					(*plain)[i + 3] = (char)(((decodelookup[uencoded[j + 4]] & 0x01) << 7) | ((decodelookup[uencoded[j + 5]] & 0x1F) << 2) | ((decodelookup[uencoded[j + 6]] & 0x18) >> 3));
 				}
 			}
 		}
