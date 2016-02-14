@@ -39,7 +39,8 @@ size_t base32_encode(const char* plain, size_t plain_length, char** encoded)
 	size_t bitcount = plain_length * 8;
 	size_t remainder = plain_length % 5;
 	size_t encoded_length = (bitcount % 5) > 0 ? 1 + bitcount / 5 : bitcount / 5;
-	(*encoded) = (char*) malloc(encoded_length);
+	(*encoded) = (char*) malloc(encoded_length + 1);
+	(*encoded)[encoded_length] = 0;
 
 	size_t limit = (plain_length <= remainder + 1) ? 0 : plain_length - remainder - 1;
 	size_t i = 0, j = 0;
@@ -97,7 +98,8 @@ size_t base32_decode(const char* encoded, size_t encoded_length, char** plain)
 	size_t error_index = -1;
 	size_t bitcount = encoded_length * 5;
 	size_t plain_length = bitcount / 8;
-	(*plain) = (char*) malloc(plain_length);
+	(*plain) = (char*) malloc(plain_length + 1);
+	(*plain)[plain_length] = 0;
 	
 	size_t remainder = plain_length % 5;
 	size_t limit = (plain_length <= remainder + 1) ? 0 : plain_length - remainder - 1;
