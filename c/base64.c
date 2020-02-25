@@ -97,7 +97,7 @@ size_t base64_encode(const char* plain, size_t plain_length, char** encoded)
 
 	if (padcount > 0 && padcount < 4)
 	{
-		const paddedlen = encoded_length + padcount;
+		const size_t paddedlen = encoded_length + padcount;
 		for (i = encoded_length; i < paddedlen; ++i)
 			(*encoded)[i] = '=';
 		return paddedlen;
