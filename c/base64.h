@@ -1,4 +1,6 @@
-#pragma once
+#ifndef BASE64_H
+#define BASE64_H
+
 
 #include <stdlib.h>
 
@@ -29,3 +31,4 @@ the function then returns an index in 'encoded' that triggered the error.
 */
 size_t base64_decode(const char* encoded, size_t encoded_length, char** plain);
 
+#endif

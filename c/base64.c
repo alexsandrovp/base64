@@ -47,6 +47,8 @@ size_t base64_encode(const char* plain, size_t plain_length, char** encoded)
 	size_t remainder = plain_length % 3;
 	size_t limit = (plain_length <= remainder + 1) ? 0 : plain_length - remainder - 1;
 	const size_t encoded_length = (bitcount % 3) > 0 ? 1 + bitcount / 3 : bitcount / 3;
+	const int padcount = 4 - encoded_length % 4;
+
 	(*encoded) = (char*) malloc(encoded_length + 1);
 	(*encoded)[encoded_length] = 0;
 
@@ -73,11 +75,26 @@ size_t base64_encode(const char* plain, size_t plain_length, char** encoded)
 		}
 	}
 
+	if (padcount > 0 && padcount < 4)
+	{
+		const paddedlen = encoded_length + padcount;
+		for (i = encoded_length; i < paddedlen; ++i)
+			(*encoded)[i] = '=';
+		return paddedlen;
+	}
+
 	return encoded_length;
 }
 
 size_t base64_decode(const char* encoded, size_t encoded_length, char** plain)
 {
+	while (encoded_length > 0)
+	{
+		if (encoded[--encoded_length] == '=') continue;
+		++encoded_length;
+		break;
+	}
+
 	const unsigned char* uencoded = (const unsigned char*) encoded;
 
 	size_t error_index = -1;
