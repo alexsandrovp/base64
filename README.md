@@ -7,7 +7,7 @@ A pretty fast base64 encoder/decoder for C
 size_t base64_encode(const char* plain, size_t plain_length, char** encoded);
 ```
 
-Encodes __plain__ bytes as base64 into __\*encoded__, appending a null character at the end.
+Encodes __plain__ bytes as base64 into __\*encoded__, appending a __NULL__ character at the end.
 
 The output buffer __\*encoded__ must be an unallocated pointer to char. This function will allocate the necessary memory.
 
