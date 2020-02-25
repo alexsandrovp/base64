@@ -74,7 +74,7 @@ plainTextLength = base64_decode(encodedText, encodedLength, &plainText);
 
 if (plainText == NULL)
 {
-  printf("invalid character at index %d: %c", plainTextLength, encodedText[plainTextLength]);
+  printf("invalid character at index %lu: %c", plainTextLength, encodedText[plainTextLength]);
 }
 else
 {
