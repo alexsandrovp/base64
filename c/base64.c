@@ -60,14 +60,14 @@ static const unsigned char decodelookup[] = {
 	0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF	//240-255
 };
 
-size_t base64_encode(const char* plain, size_t plain_length, char** encoded)
+size_t base64_encode(const char* plain, size_t plain_length, char** encoded, int addPad)
 {
 	//3 octets (bytes) match 4 sextets (bitcount -> 3*8 == 4*6)
 	size_t bitcount = plain_length * 4;
 	size_t remainder = plain_length % 3;
 	size_t limit = (plain_length <= remainder + 1) ? 0 : plain_length - remainder - 1;
 	const size_t encoded_length = (bitcount % 3) > 0 ? 1 + bitcount / 3 : bitcount / 3;
-	const int padcount = 4 - encoded_length % 4;
+	const int padcount = addPad ? 4 - encoded_length % 4 : 0;
 
 	(*encoded) = (char*) malloc(encoded_length + 1);
 	(*encoded)[encoded_length] = 0;

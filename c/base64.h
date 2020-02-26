@@ -34,7 +34,7 @@ thus pay attention if your string has a NULL end, it will might be encoded as we
 
 the function returns the length of the array (excluding the null character)
 */
-size_t base64_encode(const char* plain, size_t plain_length, char** encoded);
+size_t base64_encode(const char* plain, size_t plain_length, char** encoded, int addPad);
 
 /*
 decodes 'encoded' bytes as base64 into 'plain', appending a null character at the end
