@@ -60,6 +60,24 @@ static const unsigned char decodelookup[] = {
 	0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF	//240-255
 };
 
+/*
+size_t get_buffer_size_for_encoding(size_t byte_length)
+{
+	size_t len = 4 * byte_length / 3;
+	size_t rem = len % 4;
+	if (rem) return len - rem + 4;
+	return len;
+}
+
+size_t get_buffer_size_for_decoding(size_t encoded_length)
+{
+	size_t len = 3 * encoded_length / 4;
+	size_t rem = len % 3;
+	if (rem) return len - rem + 3;
+	return len;
+}
+*/
+
 size_t base64_encode(const char* plain, size_t plain_length, char** encoded, int addPad)
 {
 	//3 octets (bytes) match 4 sextets (bitcount -> 3*8 == 4*6)
@@ -68,9 +86,10 @@ size_t base64_encode(const char* plain, size_t plain_length, char** encoded, int
 	size_t limit = (plain_length <= remainder + 1) ? 0 : plain_length - remainder - 1;
 	const size_t encoded_length = (bitcount % 3) > 0 ? 1 + bitcount / 3 : bitcount / 3;
 	const int padcount = addPad ? 4 - encoded_length % 4 : 0;
+	const size_t paddedlen = encoded_length + padcount;
 
-	(*encoded) = (char*) malloc(encoded_length + 1);
-	(*encoded)[encoded_length] = 0;
+	(*encoded) = (char*)malloc(paddedlen + 1);
+	(*encoded)[paddedlen] = 0;
 
 	size_t i = 0, j = 0;
 	for (; i < limit; i += 3, j += 4)
@@ -97,7 +116,6 @@ size_t base64_encode(const char* plain, size_t plain_length, char** encoded, int
 
 	if (padcount > 0 && padcount < 4)
 	{
-		const size_t paddedlen = encoded_length + padcount;
 		for (i = encoded_length; i < paddedlen; ++i)
 			(*encoded)[i] = '=';
 		return paddedlen;
@@ -115,12 +133,12 @@ size_t base64_decode(const char* encoded, size_t encoded_length, char** plain)
 		break;
 	}
 
-	const unsigned char* uencoded = (const unsigned char*) encoded;
+	const unsigned char* uencoded = (const unsigned char*)encoded;
 
 	size_t error_index = -1;
 	const size_t bitcount = encoded_length * 3;
 	const size_t plain_length = bitcount / 4;
-	(*plain) = (char*)malloc (plain_length + 1);
+	(*plain) = (char*)malloc(plain_length + 1);
 	(*plain)[plain_length] = 0;
 
 	size_t remainder = plain_length % 3;
@@ -185,7 +203,7 @@ size_t base64_decode(const char* encoded, size_t encoded_length, char** plain)
 	return plain_length;
 
 error:
-	free (*plain);
+	free(*plain);
 	*plain = 0;
 	return error_index;
 }
